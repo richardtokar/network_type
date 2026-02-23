@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Network Types Match-Up</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --card: #ffffff;
+      --ink: #0f172a;
+      --accent: #0b5fff;
+      --border: #1f2937;
+      --ok: #c9f7d6;
+      --ok-border: #127a34;
+      --bad: #ffd6d6;
+      --bad-border: #9b1c1c;
+      --selected: #fff1bd;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.4;
+    }
+
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+
+    h1 {
+      margin: 0.2rem 0 0.4rem;
+      font-size: clamp(1.35rem, 2.5vw, 2rem);
+    }
+
+    .instructions {
+      background: var(--card);
+      border: 2px solid var(--border);
+      border-radius: 0.75rem;
+      padding: 0.85rem 1rem;
+      margin-bottom: 1rem;
+      font-weight: 600;
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      align-items: start;
+    }
+
+    .column {
+      background: var(--card);
+      border: 2px solid var(--border);
+      border-radius: 0.8rem;
+      padding: 1rem;
+    }
+
+    .column h2 {
+      margin-top: 0;
+      font-size: 1.2rem;
+    }
+
+    .targets {
+      display: grid;
+      gap: 0.9rem;
+    }
+
+    .target-card {
+      border: 2px solid var(--border);
+      border-radius: 0.7rem;
+      background: #f8fbff;
+      padding: 0.7rem;
+    }
+
+    .target-label {
+      font-size: 1.05rem;
+      font-weight: 800;
+      margin-bottom: 0.45rem;
+      letter-spacing: 0.03em;
+    }
+
+    .drop-zone {
+      min-height: 64px;
+      border: 2px dashed #4b5563;
+      border-radius: 0.6rem;
+      background: white;
+      padding: 0.45rem;
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+      transition: background 120ms ease, border-color 120ms ease;
+    }
+
+    .drop-zone.over {
+      border-color: var(--accent);
+      background: #e8f0ff;
+    }
+
+    .drop-zone.correct {
+      background: var(--ok);
+      border-color: var(--ok-border);
+      border-style: solid;
+    }
+
+    .drop-zone.incorrect {
+      background: var(--bad);
+      border-color: var(--bad-border);
+      border-style: solid;
+    }
+
+    .answers-list {
+      min-height: 280px;
+      display: grid;
+      gap: 0.75rem;
+      align-content: start;
+    }
+
+    .tile {
+      border: 2px solid var(--border);
+      border-radius: 0.65rem;
+      background: #fefefe;
+      padding: 0.75rem;
+      cursor: grab;
+      font-weight: 700;
+      user-select: none;
+      touch-action: manipulation;
+    }
+
+    .tile:active { cursor: grabbing; }
+
+    .tile.selected {
+      outline: 3px solid #f59e0b;
+      background: var(--selected);
+    }
+
+    .controls {
+      margin-top: 1rem;
+      display: flex;
+      gap: 0.7rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    button {
+      border: 2px solid var(--border);
+      border-radius: 0.55rem;
+      padding: 0.6rem 1rem;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      background: #fff;
+    }
+
+    button.primary {
+      background: var(--accent);
+      color: #fff;
+      border-color: #073ca6;
+    }
+
+    #message {
+      font-size: 1rem;
+      font-weight: 700;
+      min-height: 1.5rem;
+      padding-left: 0.2rem;
+    }
+
+    @media (max-width: 800px) {
+      .board { grid-template-columns: 1fr; }
+      .answers-list { min-height: 100px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Match the Network Type</h1>
+    <p class="instructions" id="instructions">
+      Drag each description from the right into the correct network type on the left.
+      You can also click a description to select it, then click a drop zone to place it.
+      Click a placed description to send it back to the answers list. Then press <strong>Check Answers</strong>.
+    </p>
+
+    <section class="board" aria-describedby="instructions">
+      <section class="column" aria-label="Network type targets">
+        <h2>Targets</h2>
+        <div class="targets">
+          <article class="target-card">
+            <div class="target-label">MAN</div>
+            <div class="drop-zone" data-target="MAN" tabindex="0" aria-label="Drop zone for MAN"></div>
+          </article>
+          <article class="target-card">
+            <div class="target-label">PAN</div>
+            <div class="drop-zone" data-target="PAN" tabindex="0" aria-label="Drop zone for PAN"></div>
+          </article>
+          <article class="target-card">
+            <div class="target-label">WAN</div>
+            <div class="drop-zone" data-target="WAN" tabindex="0" aria-label="Drop zone for WAN"></div>
+          </article>
+          <article class="target-card">
+            <div class="target-label">LAN</div>
+            <div class="drop-zone" data-target="LAN" tabindex="0" aria-label="Drop zone for LAN"></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="column" aria-label="Answer choices">
+        <h2>Answer Tiles</h2>
+        <div id="answers" class="answers-list" aria-live="polite"></div>
+      </section>
+    </section>
+
+    <div class="controls">
+      <button id="checkBtn" class="primary" type="button">Check Answers</button>
+      <button id="resetBtn" type="button">Reset</button>
+      <div id="message" role="status" aria-live="polite"></div>
+    </div>
+  </main>
+
+  <script>
+    const correctMapping = {
+      MAN: 'Linking network services around a city or metro region.',
+      PAN: 'Connecting one person\'s personal devices, like a phone and laptop.',
+      WAN: 'Connecting schools or campuses across very large distances.',
+      LAN: 'Connecting rooms or classrooms inside one local building/site.'
+    };
+
+    const answersContainer = document.getElementById('answers');
+    const dropZones = Array.from(document.querySelectorAll('.drop-zone'));
+    const message = document.getElementById('message');
+    const checkBtn = document.getElementById('checkBtn');
+    const resetBtn = document.getElementById('resetBtn');
+
+    let selectedTileId = null;
+
+    function shuffle(arr) {
+      const copy = [...arr];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function clearFeedback() {
+      dropZones.forEach((zone) => {
+        zone.classList.remove('correct', 'incorrect', 'over');
+      });
+      message.textContent = '';
+    }
+
+    function deselectTile() {
+      document.querySelectorAll('.tile.selected').forEach((tile) => tile.classList.remove('selected'));
+      selectedTileId = null;
+    }
+
+    function createTile(id, key, text) {
+      const tile = document.createElement('div');
+      tile.id = id;
+      tile.className = 'tile';
+      tile.draggable = true;
+      tile.dataset.answer = key;
+      tile.setAttribute('role', 'button');
+      tile.setAttribute('tabindex', '0');
+      tile.setAttribute('aria-label', `Answer option for ${key}`);
+      tile.textContent = text;
+
+      tile.addEventListener('dragstart', (e) => {
+        e.dataTransfer.setData('text/plain', tile.id);
+      });
+
+      tile.addEventListener('click', () => {
+        const parentZone = tile.closest('.drop-zone');
+        if (parentZone) {
+          answersContainer.appendChild(tile);
+          clearFeedback();
+          deselectTile();
+          return;
+        }
+
+        if (selectedTileId === tile.id) {
+          deselectTile();
+        } else {
+          deselectTile();
+          tile.classList.add('selected');
+          selectedTileId = tile.id;
+        }
+      });
+
+      tile.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          tile.click();
+        }
+      });
+
+      return tile;
+    }
+
+    function placeTileInZone(tile, zone) {
+      const existing = zone.querySelector('.tile');
+      if (existing && existing !== tile) {
+        answersContainer.appendChild(existing);
+      }
+      zone.appendChild(tile);
+      clearFeedback();
+      deselectTile();
+    }
+
+    function setupDropZone(zone) {
+      zone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        zone.classList.add('over');
+      });
+
+      zone.addEventListener('dragleave', () => {
+        zone.classList.remove('over');
+      });
+
+      zone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        zone.classList.remove('over');
+        const tileId = e.dataTransfer.getData('text/plain');
+        const tile = document.getElementById(tileId);
+        if (!tile) return;
+        placeTileInZone(tile, zone);
+      });
+
+      zone.addEventListener('click', () => {
+        if (!selectedTileId) return;
+        const selectedTile = document.getElementById(selectedTileId);
+        if (!selectedTile) return;
+        placeTileInZone(selectedTile, zone);
+      });
+
+      zone.addEventListener('keydown', (e) => {
+        if ((e.key === 'Enter' || e.key === ' ') && selectedTileId) {
+          e.preventDefault();
+          zone.click();
+        }
+      });
+    }
+
+    function checkAnswers() {
+      let score = 0;
+      dropZones.forEach((zone) => {
+        zone.classList.remove('correct', 'incorrect');
+        const target = zone.dataset.target;
+        const tile = zone.querySelector('.tile');
+        if (tile && tile.dataset.answer === target) {
+          score += 1;
+          zone.classList.add('correct');
+        } else {
+          zone.classList.add('incorrect');
+        }
+      });
+      message.textContent = `You got ${score}/4 correct.`;
+      deselectTile();
+    }
+
+    function resetBoard() {
+      clearFeedback();
+      deselectTile();
+      answersContainer.innerHTML = '';
+      dropZones.forEach((zone) => {
+        zone.innerHTML = '';
+      });
+
+      const entries = shuffle(Object.entries(correctMapping));
+      entries.forEach(([key, text], index) => {
+        const tile = createTile(`tile-${index}-${Date.now()}`, key, text);
+        answersContainer.appendChild(tile);
+      });
+    }
+
+    dropZones.forEach(setupDropZone);
+    checkBtn.addEventListener('click', checkAnswers);
+    resetBtn.addEventListener('click', resetBoard);
+
+    resetBoard();
+  </script>
+</body>
+</html>
